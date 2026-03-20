@@ -1,18 +1,30 @@
-<div id="checkout"></div>
+import Stripe from "stripe";
 
-<script src="https://js.stripe.com/v3/"></script>
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-<script>
-const stripe = Stripe("YOUR_PUBLISHABLE_KEY");
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-fetch("https://backend.vercel.app/api/checkout", {
-  method: "POST"
-})
-.then(res => res.json())
-.then(data => {
-  const checkout = stripe.initEmbeddedCheckout({
-    clientSecret: data.clientSecret
-  });
-  checkout.mount("#checkout");
-});
-</script>
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      ui_mode: "embedded",
+      line_items: [
+        {
+          price: "price_1TCnmXQiNrsFVsySeZPdrB73",
+          quantity: 1,
+        },
+      ],
+      return_url: "https://jointhenxtlvl.com",
+    });
+
+    return res.status(200).json({
+      clientSecret: session.client_secret,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: err.message,
+    });
+  }
