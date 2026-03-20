@@ -11,7 +11,6 @@ module.exports = async function handler(req, res) {
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-  
       line_items: [
         {
           price: "price_1TCnmXQiNrsFVsySeZPdrB73",
@@ -19,16 +18,15 @@ module.exports = async function handler(req, res) {
         },
       ],
       success_url: "https://jointhenxtlvl.com",
-cancel_url: "https://jointhenxtlvl.com",
+      cancel_url: "https://jointhenxtlvl.com",
     });
 
     return res.status(200).json({
-  url: session.url,
-});
+      url: session.url,
     });
   } catch (err) {
     return res.status(500).json({
       error: err.message,
     });
-    }
-  
+  }
+};
